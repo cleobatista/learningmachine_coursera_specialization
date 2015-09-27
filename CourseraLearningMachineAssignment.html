@@ -192,8 +192,8 @@ hljs.initHighlightingOnLoad();
 ## Loading required package: ggplot2
 </code></pre>
 
-<pre><code class="r">pmlt=read.csv(&#39;pml-training.csv&#39;)
-pmltest=read.csv(&#39;pml-testing.csv&#39;)
+<pre><code class="r">pmlt=read.csv(&#39;/home/cleo/pml-training.csv&#39;)
+pmltest=read.csv(&#39;/home/cleo/pml-testing.csv&#39;)
 </code></pre>
 
 <h2>Cleaning the datasets</h2>
@@ -247,8 +247,11 @@ names(pmltrain)[ncol(pmltrain)]&lt;-&#39;classe&#39;
 The algorithm choosen is &#39;random forests&#39;. The final accuracy for this algorithm tends to be satisfatory, although this process cost is high.</p>
 
 <pre><code class="r">set.seed(3)
+inTrain&lt;-createDataPartition(pmltrain$classe,p=0.8,list=FALSE)
+train&lt;-pmltrain[inTrain,]
+test&lt;-pmltrain[-inTrain,]
 train_control &lt;- trainControl(method=&quot;cv&quot;, number=10)
-modFit &lt;- train(classe~.,data=pmltrain,method=&quot;rf&quot;,trControl=train_control)
+modFit &lt;- train(classe~.,data=train,method=&quot;rf&quot;,trControl=train_control)
 </code></pre>
 
 <pre><code>## Warning in model.matrix.default(Terms, m, contrasts, na.action =
@@ -268,42 +271,42 @@ modFit &lt;- train(classe~.,data=pmltrain,method=&quot;rf&quot;,trControl=train_
 <p>So, let&#39;s verify the results:</p>
 
 <pre><code class="r"># make predictions
-predictions &lt;- predict(modFit, pmltrain[,-ncol(pmltrain)])
+predictions &lt;- predict(modFit, test[,-ncol(pmltrain)])
 # summarize results
-confusionMatrix(predictions, pmltrain$classe)
+confusionMatrix(predictions, test$classe)
 </code></pre>
 
 <pre><code>## Confusion Matrix and Statistics
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 5580    0    0    0    0
-##          B    0 3797    0    0    0
-##          C    0    0 3422    0    0
-##          D    0    0    0 3216    0
-##          E    0    0    0    0 3607
+##          A 1116    9    1    0    0
+##          B    0  748    3    0    0
+##          C    0    2  679   13    0
+##          D    0    0    1  629    0
+##          E    0    0    0    1  721
 ## 
 ## Overall Statistics
-##                                      
-##                Accuracy : 1          
-##                  95% CI : (0.9998, 1)
-##     No Information Rate : 0.2844     
-##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16  
-##                                      
-##                   Kappa : 1          
-##  Mcnemar&#39;s Test P-Value : NA         
+##                                           
+##                Accuracy : 0.9924          
+##                  95% CI : (0.9891, 0.9948)
+##     No Information Rate : 0.2845          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.9903          
+##  Mcnemar&#39;s Test P-Value : NA              
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            1.0000   1.0000   1.0000   1.0000   1.0000
-## Specificity            1.0000   1.0000   1.0000   1.0000   1.0000
-## Pos Pred Value         1.0000   1.0000   1.0000   1.0000   1.0000
-## Neg Pred Value         1.0000   1.0000   1.0000   1.0000   1.0000
-## Prevalence             0.2844   0.1935   0.1744   0.1639   0.1838
-## Detection Rate         0.2844   0.1935   0.1744   0.1639   0.1838
-## Detection Prevalence   0.2844   0.1935   0.1744   0.1639   0.1838
-## Balanced Accuracy      1.0000   1.0000   1.0000   1.0000   1.0000
+## Sensitivity            1.0000   0.9855   0.9927   0.9782   1.0000
+## Specificity            0.9964   0.9991   0.9954   0.9997   0.9997
+## Pos Pred Value         0.9911   0.9960   0.9784   0.9984   0.9986
+## Neg Pred Value         1.0000   0.9965   0.9985   0.9957   1.0000
+## Prevalence             0.2845   0.1935   0.1744   0.1639   0.1838
+## Detection Rate         0.2845   0.1907   0.1731   0.1603   0.1838
+## Detection Prevalence   0.2870   0.1914   0.1769   0.1606   0.1840
+## Balanced Accuracy      0.9982   0.9923   0.9940   0.9890   0.9998
 </code></pre>
 
 <p>And, finally, construct the array with the answers for the test data.</p>

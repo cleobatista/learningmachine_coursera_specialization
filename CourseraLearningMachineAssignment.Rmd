@@ -8,8 +8,8 @@ So, first, all the library and data needed are called:
 
 ```{r}
 library(caret)
-pmlt=read.csv('pml-training.csv')
-pmltest=read.csv('pml-testing.csv')
+pmlt=read.csv('/home/cleo/pml-training.csv')
+pmltest=read.csv('/home/cleo/pml-testing.csv')
 ```
 
 ## Cleaning the datasets
@@ -68,8 +68,11 @@ The algorithm choosen is 'random forests'. The final accuracy for this algorithm
 
 ```{r}
 set.seed(3)
+inTrain<-createDataPartition(pmltrain$classe,p=0.8,list=FALSE)
+train<-pmltrain[inTrain,]
+test<-pmltrain[-inTrain,]
 train_control <- trainControl(method="cv", number=10)
-modFit <- train(classe~.,data=pmltrain,method="rf",trControl=train_control)
+modFit <- train(classe~.,data=train,method="rf",trControl=train_control)
 
 ```
 
@@ -77,9 +80,9 @@ So, let's verify the results:
 
 ```{r}
 # make predictions
-predictions <- predict(modFit, pmltrain[,-ncol(pmltrain)])
+predictions <- predict(modFit, test[,-ncol(pmltrain)])
 # summarize results
-confusionMatrix(predictions, pmltrain$classe)
+confusionMatrix(predictions, test$classe)
 ```
 
 And, finally, construct the array with the answers for the test data.

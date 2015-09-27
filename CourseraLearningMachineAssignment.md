@@ -17,8 +17,8 @@ library(caret)
 ```
 
 ```r
-pmlt=read.csv('pml-training.csv')
-pmltest=read.csv('pml-testing.csv')
+pmlt=read.csv('/home/cleo/pml-training.csv')
+pmltest=read.csv('/home/cleo/pml-testing.csv')
 ```
 
 ## Cleaning the datasets
@@ -82,8 +82,11 @@ The algorithm choosen is 'random forests'. The final accuracy for this algorithm
 
 ```r
 set.seed(3)
+inTrain<-createDataPartition(pmltrain$classe,p=0.8,list=FALSE)
+train<-pmltrain[inTrain,]
+test<-pmltrain[-inTrain,]
 train_control <- trainControl(method="cv", number=10)
-modFit <- train(classe~.,data=pmltrain,method="rf",trControl=train_control)
+modFit <- train(classe~.,data=train,method="rf",trControl=train_control)
 ```
 
 ```
@@ -108,9 +111,9 @@ So, let's verify the results:
 
 ```r
 # make predictions
-predictions <- predict(modFit, pmltrain[,-ncol(pmltrain)])
+predictions <- predict(modFit, test[,-ncol(pmltrain)])
 # summarize results
-confusionMatrix(predictions, pmltrain$classe)
+confusionMatrix(predictions, test$classe)
 ```
 
 ```
@@ -118,33 +121,33 @@ confusionMatrix(predictions, pmltrain$classe)
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 5580    0    0    0    0
-##          B    0 3797    0    0    0
-##          C    0    0 3422    0    0
-##          D    0    0    0 3216    0
-##          E    0    0    0    0 3607
+##          A 1116    9    1    0    0
+##          B    0  748    3    0    0
+##          C    0    2  679   13    0
+##          D    0    0    1  629    0
+##          E    0    0    0    1  721
 ## 
 ## Overall Statistics
-##                                      
-##                Accuracy : 1          
-##                  95% CI : (0.9998, 1)
-##     No Information Rate : 0.2844     
-##     P-Value [Acc > NIR] : < 2.2e-16  
-##                                      
-##                   Kappa : 1          
-##  Mcnemar's Test P-Value : NA         
+##                                           
+##                Accuracy : 0.9924          
+##                  95% CI : (0.9891, 0.9948)
+##     No Information Rate : 0.2845          
+##     P-Value [Acc > NIR] : < 2.2e-16       
+##                                           
+##                   Kappa : 0.9903          
+##  Mcnemar's Test P-Value : NA              
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            1.0000   1.0000   1.0000   1.0000   1.0000
-## Specificity            1.0000   1.0000   1.0000   1.0000   1.0000
-## Pos Pred Value         1.0000   1.0000   1.0000   1.0000   1.0000
-## Neg Pred Value         1.0000   1.0000   1.0000   1.0000   1.0000
-## Prevalence             0.2844   0.1935   0.1744   0.1639   0.1838
-## Detection Rate         0.2844   0.1935   0.1744   0.1639   0.1838
-## Detection Prevalence   0.2844   0.1935   0.1744   0.1639   0.1838
-## Balanced Accuracy      1.0000   1.0000   1.0000   1.0000   1.0000
+## Sensitivity            1.0000   0.9855   0.9927   0.9782   1.0000
+## Specificity            0.9964   0.9991   0.9954   0.9997   0.9997
+## Pos Pred Value         0.9911   0.9960   0.9784   0.9984   0.9986
+## Neg Pred Value         1.0000   0.9965   0.9985   0.9957   1.0000
+## Prevalence             0.2845   0.1935   0.1744   0.1639   0.1838
+## Detection Rate         0.2845   0.1907   0.1731   0.1603   0.1838
+## Detection Prevalence   0.2870   0.1914   0.1769   0.1606   0.1840
+## Balanced Accuracy      0.9982   0.9923   0.9940   0.9890   0.9998
 ```
 
 And, finally, construct the array with the answers for the test data.
